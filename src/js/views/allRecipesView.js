@@ -22,12 +22,6 @@ class AllRecipes extends View {
       handler();
     });
   }
-
-  _generateMarkup() {
-    return `
-
-    `;
-  }
 }
 
 export default new AllRecipes();

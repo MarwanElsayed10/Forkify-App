@@ -35,74 +35,159 @@ class addRecipeView extends View {
 
   _generateMarkup() {
     return `
-      <form class="upload">
-        <div class="upload__column">
-          <h3 class="upload__heading">Recipe data</h3>
-          <label>Title</label>
-          <input value="TEST" required name="title" type="text" />
-          <label>URL</label>
-          <input value="TEST" required name="sourceUrl" type="text" />
-          <label>Image URL</label>
-          <input value="TEST" required name="image" type="text" />
-          <label>Publisher</label>
-          <input value="TEST" required name="publisher" type="text" />
-          <label>Prep time</label>
-          <input value="23" required name="cookingTime" type="number" />
-          <label>Servings</label>
-          <input value="23" required name="servings" type="number" />
-        </div>
+    <form class="upload">
+    <div class="upload__column">
+      <h3 class="upload__heading">Recipe data</h3>
+      <label>Title</label>
+      <input placeholder="Recipe title" required name="title" type="text" />
+      <label>URL</label>
+      <input
+        placeholder="URL (must be at least 5 characters)"
+        required
+        name="sourceUrl"
+        type="text"
+      />
+      <label>Image URL</label>
+      <input
+        placeholder="Recipe Image URL"
+        required
+        name="image"
+        type="text"
+      />
+      <label>Publisher</label>
+      <input
+        placeholder="Recipe Publisher name"
+        required
+        name="publisher"
+        type="text"
+      />
+      <label>Prep time</label>
+      <input
+        placeholder="Recipe preparation time"
+        required
+        name="cookingTime"
+        type="number"
+      />
+      <label>Servings</label>
+      <input
+        placeholder="Recipe number of servings"
+        required
+        name="servings"
+        type="number"
+      />
+    </div>
 
-        <div class="upload__column">
-          <h3 class="upload__heading">Ingredients</h3>
-          <label>Ingredient 1</label>
-          <input
-            value="0.5,kg,Rice"
-            type="text"
-            required
-            name="ingredient-1"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-          <label>Ingredient 2</label>
-          <input
-            value="1,,Avocado"
-            type="text"
-            name="ingredient-2"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-          <label>Ingredient 3</label>
-          <input
-            value=",,salt"
-            type="text"
-            name="ingredient-3"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-          <label>Ingredient 4</label>
-          <input
-            type="text"
-            name="ingredient-4"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-          <label>Ingredient 5</label>
-          <input
-            type="text"
-            name="ingredient-5"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-          <label>Ingredient 6</label>
-          <input
-            type="text"
-            name="ingredient-6"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-        </div>
+    <div class="upload__column">
+      <h3 class="upload__heading">Ingredients</h3>
+      <label>Ingredient 1</label>
+      <input
+        type="text"
+        required
+        name="quantity-1"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        required
+        name="unit-1"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        required
+        name="description-1"
+        placeholder="Description"
+      />
+      
+      <label>Ingredient 2</label>
+      <input
+        type="text"
+        name="quantity-2"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        name="unit-2"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        name="description-2"
+        placeholder="Description"
+      />
+      <label>Ingredient 3</label>
+      <input
+        type="text"
+        name="quantity-3"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        name="unit-3"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        name="description-3"
+        placeholder="Description"
+      />
+      <label>Ingredient 4</label>
+      <input
+        type="text"
+        name="quantity-4"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        name="unit-4"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        name="description-4"
+        placeholder="Description"
+      />
+      <label>Ingredient 5</label>
+      <input
+        type="text"
+        name="quantity-5"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        name="unit-5"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        name="description-5"
+        placeholder="Description"
+      />
+      <label>Ingredient 6</label>
+      <input
+        type="text"
+        name="quantity-6"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        name="unit-6"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        name="description-6"
+        placeholder="Description"
+      />
+    </div>
 
-        <button class="btn upload__btn">
-          <svg>
-            <use href="src/img/icons.svg#icon-upload-cloud"></use>
-          </svg>
-          <span>Upload</span>
-        </button>
-      </form>
+    <button class="btn upload__btn">
+      <svg>
+        <use href="src/img/icons.svg#icon-upload-cloud"></use>
+      </svg>
+      <span>Upload</span>
+    </button>
+  </form>
     `;
   }
 }

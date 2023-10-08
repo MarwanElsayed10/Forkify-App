@@ -4,7 +4,7 @@ import icons from '../../img/icons.svg';
 class ResultsView extends View {
   _parentElement = document.querySelector('.results');
   _errorMessage =
-    'No recipe matches , please try again! NOTE: Click on "Add recipe" button to know the recipes that you can search for :)';
+    'No recipe matches , please try again! NOTE: Click on "Search Keywords" button to know the recipes that you can search for :)';
 
   _generateMarkup() {
     return this._data.map(this._generateMarkupPreview).join('');
@@ -23,7 +23,9 @@ class ResultsView extends View {
           <div class="preview__data">
             <h4 class="preview__title">${result.title}</h4>
             <p class="preview__publisher">${result.publisher}</p>
-            <div class="preview__user-generated ${result.key ? '' : 'hidden'}">
+            <div class="preview__user-generated ${
+              result.key ? '' : 'hidden'
+            }" title="Your Own Recipe">
               <svg>
                 <use href="${icons}#icon-user"></use>
               </svg>

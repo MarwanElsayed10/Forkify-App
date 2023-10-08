@@ -668,8 +668,7 @@ const controlAddRecipe = async function(data) {
             (0, _addRecipeViewJsDefault.default).toggleAddRecipe();
         }, (0, _configJs.MODAL_CLOSE_SEC) * 1000);
     } catch (err) {
-        console.error("\uD83D\uDCA5", err);
-        (0, _addRecipeViewJsDefault.default).renderErrorMessage(err.message);
+        (0, _addRecipeViewJsDefault.default).renderErrorMessage((0, _addRecipeViewJsDefault.default)._errorMessage + "  " + err.message);
     }
 };
 const deleteRecipe = async function() {
@@ -691,6 +690,10 @@ const deleteRecipe = async function() {
 const controlAllRecipes = function() {
     (0, _allRecipesViewJsDefault.default).toggleAllRecipe();
 };
+const controlLogo = function() {
+    window.history.replaceState(null, "", " ");
+    location.reload();
+};
 const init = function() {
     (0, _bookmarkViewJsDefault.default).addHandlerRender(controlGetBookmarks);
     (0, _bookmarkViewJsDefault.default).addHandlerRender(controlEmptyBookmarks);
@@ -704,10 +707,11 @@ const init = function() {
     (0, _addRecipeViewJsDefault.default).addHandlerAddRecipe();
     (0, _addRecipeViewJsDefault.default).addHandlerUpload(controlAddRecipe);
     (0, _allRecipesViewJsDefault.default).addHandlerAllRecipe(controlAllRecipes);
+    (0, _recipeViewDefault.default).addHandlerLogo(controlLogo);
 };
 init();
 
-},{"./model.js":"Y4A21","./views/recipeView":"l60JC","./views/searchView.js":"9OQAM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./views/resultsView.js":"cSbZE","./views/paginationView.js":"6z7bi","./views/BookmarkView.js":"d9IvG","./views/addRecipeView.js":"i6DNj","./config.js":"k5Hzs","./views/allRecipesView.js":"6PNHp"}],"Y4A21":[function(require,module,exports) {
+},{"./model.js":"Y4A21","./views/recipeView":"l60JC","./views/resultsView.js":"cSbZE","./views/searchView.js":"9OQAM","./views/paginationView.js":"6z7bi","./views/BookmarkView.js":"d9IvG","./views/addRecipeView.js":"i6DNj","./config.js":"k5Hzs","./views/allRecipesView.js":"6PNHp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"Y4A21":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state);
@@ -809,17 +813,20 @@ const clearBookmarks = function() {
 };
 const uploadRecipe = async function(dataNewRecipe) {
     try {
-        const ingredients = Object.entries(dataNewRecipe).filter((entry)=>entry[0].startsWith("ingredient") && entry[1] !== "").map((ing)=>{
-            const ingArr = ing[1].split(",").map((el)=>el.trim());
-            // const ingArr = ing[1].replaceAll(' ', '').split(',');
-            if (ingArr.length !== 3) throw new Error("Wrong ingredient format! Please use the correct format :)");
-            const [quantity, unit, description] = ingArr;
-            return {
-                quantity: quantity ? +quantity : null,
-                unit,
-                description
-            };
-        });
+        const ingredients = [];
+        for(let i = 1; i <= 6; i++){
+            const [quantity] = Object.entries(dataNewRecipe).filter((entry)=>entry[0].startsWith(`quantity-${i}`) && entry[1] !== "").map((des)=>des[1]);
+            const [unit] = Object.entries(dataNewRecipe).filter((entry)=>entry[0].startsWith(`unit-${i}`) && entry[1] !== "").map((des)=>des[1]);
+            const [description] = Object.entries(dataNewRecipe).filter((entry)=>entry[0].startsWith(`description-${i}`) && entry[1] !== "").map((des)=>des[1]);
+            if (quantity) {
+                const ingredientsFinal = {
+                    quantity: quantity ? +quantity : null,
+                    unit: unit,
+                    description: description
+                };
+                ingredients.push(ingredientsFinal);
+            }
+        }
         const recipe = {
             title: dataNewRecipe.title,
             source_url: dataNewRecipe.sourceUrl,
@@ -973,6 +980,9 @@ class RecipeView extends (0, _viewDefault.default) {
             handler();
         });
     }
+    addHandlerLogo(handler) {
+        document.querySelector(".header__logo").addEventListener("click", handler);
+    }
     addHandlerDelete(handler) {
         this._parentElement.addEventListener("click", function(e) {
             const btn = e.target.closest(".btn--delete");
@@ -982,22 +992,22 @@ class RecipeView extends (0, _viewDefault.default) {
     }
     _generateMarkup() {
         return `
-      <figure class="recipe__fig">
-        <img src="${this._data.image}" alt="${this._data.title}" class="recipe__img" />
+      <figure class="recipe__fig" title="Recipe Image">
+        <img src="${this._data.image}" alt="${this._data.title}" class="recipe__img"/>
         <h1 class="recipe__title">
           <span>${this._data.title}</span>
         </h1>
       </figure>
 
       <div class="recipe__details">
-        <div class="recipe__info">
+        <div class="recipe__info" title="Cooking time">
           <svg class="recipe__info-icon">
             <use href="${0, _iconsSvgDefault.default}#icon-clock"></use>
           </svg>
           <span class="recipe__info-data recipe__info-data--minutes">${this._data.cookingTime}</span>
           <span class="recipe__info-text">minutes</span>
         </div>
-        <div class="recipe__info">
+        <div class="recipe__info" title="Number of servings">
           <svg class="recipe__info-icon">
             <use href="${0, _iconsSvgDefault.default}#icon-users"></use>
           </svg>
@@ -1005,12 +1015,12 @@ class RecipeView extends (0, _viewDefault.default) {
           <span class="recipe__info-text">servings</span>
 
           <div class="recipe__info-buttons">
-            <button class="btn--tiny btn--increase-servings" data-update-to="${this._data.servings - 1}">
+            <button class="btn--tiny btn--increase-servings" data-update-to="${this._data.servings - 1}" title="Decrease number of servings">
               <svg>
                 <use href="${0, _iconsSvgDefault.default}#icon-minus-circle"></use>
               </svg>
             </button>
-            <button class="btn--tiny btn--increase-servings" data-update-to="${this._data.servings + 1}">
+            <button class="btn--tiny btn--increase-servings" data-update-to="${this._data.servings + 1}" title="Increase number of servings">
               <svg>
                 <use href="${0, _iconsSvgDefault.default}#icon-plus-circle"></use>
               </svg>
@@ -1018,18 +1028,17 @@ class RecipeView extends (0, _viewDefault.default) {
           </div>
         </div>
 
-        <div class="recipe__user-generated ${this._data.key ? "" : "hidden"}">
+        <div class="recipe__user-generated ${this._data.key ? "" : "hidden"}" title="Your Own Recipe">
           <svg>
             <use href="${0, _iconsSvgDefault.default}#icon-user"></use>
           </svg>
         </div>
-        <button class="btn--round btn-bookmark">
+        <button class="btn--round btn-bookmark" title="Bookmark Recipe">
           <svg class="">
             <use href="${0, _iconsSvgDefault.default}#icon-bookmark${this._data.bookmarked ? "-fill" : ""}"></use>
           </svg>
         </button>
-        
-        <button class="btn--round btn--delete">
+        <button class="btn--round btn--delete ${this._data.key ? "" : "hidden"}" title="Delete Recipe">
           ❌
         </button>
         
@@ -1080,7 +1089,7 @@ class RecipeView extends (0, _viewDefault.default) {
 }
 exports.default = new RecipeView();
 
-},{"../../img/icons.svg":"cMpiy","@mathematics/fraction":"gDJcX","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./View":"5cUXS"}],"cMpiy":[function(require,module,exports) {
+},{"../../img/icons.svg":"cMpiy","@mathematics/fraction":"gDJcX","./View":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cMpiy":[function(require,module,exports) {
 module.exports = require("17cff2908589362b").getBundleURL("hWUTQ") + "icons.21bad73c.svg" + "?" + Date.now();
 
 },{"17cff2908589362b":"lgJ39"}],"lgJ39":[function(require,module,exports) {
@@ -1399,7 +1408,44 @@ class View {
 }
 exports.default = View;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../../img/icons.svg":"cMpiy"}],"9OQAM":[function(require,module,exports) {
+},{"../../img/icons.svg":"cMpiy","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cSbZE":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _view = require("./View");
+var _viewDefault = parcelHelpers.interopDefault(_view);
+var _iconsSvg = require("../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+class ResultsView extends (0, _viewDefault.default) {
+    _parentElement = document.querySelector(".results");
+    _errorMessage = 'No recipe matches , please try again! NOTE: Click on "Search Keywords" button to know the recipes that you can search for :)';
+    _generateMarkup() {
+        return this._data.map(this._generateMarkupPreview).join("");
+    }
+    _generateMarkupPreview(result) {
+        const id = window.location.hash.slice(1);
+        return `
+      <li class="preview">
+        <a class="preview__link ${result.id === id ? "preview__link--active" : ""}" href="#${result.id}">
+          <figure class="preview__fig">
+            <img src="${result.image}" alt="${result.title}" />
+          </figure>
+          <div class="preview__data">
+            <h4 class="preview__title">${result.title}</h4>
+            <p class="preview__publisher">${result.publisher}</p>
+            <div class="preview__user-generated ${result.key ? "" : "hidden"}" title="Your Own Recipe">
+              <svg>
+                <use href="${0, _iconsSvgDefault.default}#icon-user"></use>
+              </svg>
+            </div>
+          </div>
+        </a>
+      </li>
+    `;
+    }
+}
+exports.default = new ResultsView();
+
+},{"./View":"5cUXS","../../img/icons.svg":"cMpiy","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9OQAM":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _viewJs = require("./View.js");
@@ -1424,44 +1470,7 @@ class SearchView extends (0, _viewJsDefault.default) {
 }
 exports.default = new SearchView();
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./View.js":"5cUXS"}],"cSbZE":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _view = require("./View");
-var _viewDefault = parcelHelpers.interopDefault(_view);
-var _iconsSvg = require("../../img/icons.svg");
-var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
-class ResultsView extends (0, _viewDefault.default) {
-    _parentElement = document.querySelector(".results");
-    _errorMessage = "No recipe match , please try again!";
-    _generateMarkup() {
-        return this._data.map(this._generateMarkupPreview).join("");
-    }
-    _generateMarkupPreview(result) {
-        const id = window.location.hash.slice(1);
-        return `
-      <li class="preview">
-        <a class="preview__link ${result.id === id ? "preview__link--active" : ""}" href="#${result.id}">
-          <figure class="preview__fig">
-            <img src="${result.image}" alt="${result.title}" />
-          </figure>
-          <div class="preview__data">
-            <h4 class="preview__title">${result.title}</h4>
-            <p class="preview__publisher">${result.publisher}</p>
-            <div class="preview__user-generated ${result.key ? "" : "hidden"}">
-              <svg>
-                <use href="${0, _iconsSvgDefault.default}#icon-user"></use>
-              </svg>
-            </div>
-          </div>
-        </a>
-      </li>
-    `;
-    }
-}
-exports.default = new ResultsView();
-
-},{"./View":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../../img/icons.svg":"cMpiy"}],"6z7bi":[function(require,module,exports) {
+},{"./View.js":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6z7bi":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _iconsSvg = require("../../img/icons.svg");
@@ -1559,7 +1568,7 @@ class BookmarkView extends (0, _viewDefault.default) {
           <div class="preview__data">
             <h4 class="preview__title">${result.title}</h4>
             <p class="preview__publisher">${result.publisher}</p>
-            <div class="preview__user-generated ${result.key ? "" : "hidden"}">
+            <div class="preview__user-generated ${result.key ? "" : "hidden"}" title="Your Own Recipe">
               <svg>
                 <use href="${0, _iconsSvgDefault.default}#icon-user"></use>
               </svg>
@@ -1581,7 +1590,7 @@ class BookmarkView extends (0, _viewDefault.default) {
 }
 exports.default = new BookmarkView();
 
-},{"./View":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../../img/icons.svg":"cMpiy"}],"i6DNj":[function(require,module,exports) {
+},{"./View":"5cUXS","../../img/icons.svg":"cMpiy","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"i6DNj":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _view = require("./View");
@@ -1618,74 +1627,159 @@ class addRecipeView extends (0, _viewDefault.default) {
     }
     _generateMarkup() {
         return `
-      <form class="upload">
-        <div class="upload__column">
-          <h3 class="upload__heading">Recipe data</h3>
-          <label>Title</label>
-          <input value="TEST" required name="title" type="text" />
-          <label>URL</label>
-          <input value="TEST" required name="sourceUrl" type="text" />
-          <label>Image URL</label>
-          <input value="TEST" required name="image" type="text" />
-          <label>Publisher</label>
-          <input value="TEST" required name="publisher" type="text" />
-          <label>Prep time</label>
-          <input value="23" required name="cookingTime" type="number" />
-          <label>Servings</label>
-          <input value="23" required name="servings" type="number" />
-        </div>
+    <form class="upload">
+    <div class="upload__column">
+      <h3 class="upload__heading">Recipe data</h3>
+      <label>Title</label>
+      <input placeholder="Recipe title" required name="title" type="text" />
+      <label>URL</label>
+      <input
+        placeholder="URL (must be at least 5 characters)"
+        required
+        name="sourceUrl"
+        type="text"
+      />
+      <label>Image URL</label>
+      <input
+        placeholder="Recipe Image URL"
+        required
+        name="image"
+        type="text"
+      />
+      <label>Publisher</label>
+      <input
+        placeholder="Recipe Publisher name"
+        required
+        name="publisher"
+        type="text"
+      />
+      <label>Prep time</label>
+      <input
+        placeholder="Recipe preparation time"
+        required
+        name="cookingTime"
+        type="number"
+      />
+      <label>Servings</label>
+      <input
+        placeholder="Recipe number of servings"
+        required
+        name="servings"
+        type="number"
+      />
+    </div>
 
-        <div class="upload__column">
-          <h3 class="upload__heading">Ingredients</h3>
-          <label>Ingredient 1</label>
-          <input
-            value="0.5,kg,Rice"
-            type="text"
-            required
-            name="ingredient-1"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-          <label>Ingredient 2</label>
-          <input
-            value="1,,Avocado"
-            type="text"
-            name="ingredient-2"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-          <label>Ingredient 3</label>
-          <input
-            value=",,salt"
-            type="text"
-            name="ingredient-3"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-          <label>Ingredient 4</label>
-          <input
-            type="text"
-            name="ingredient-4"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-          <label>Ingredient 5</label>
-          <input
-            type="text"
-            name="ingredient-5"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-          <label>Ingredient 6</label>
-          <input
-            type="text"
-            name="ingredient-6"
-            placeholder="Format: 'Quantity,Unit,Description'"
-          />
-        </div>
+    <div class="upload__column">
+      <h3 class="upload__heading">Ingredients</h3>
+      <label>Ingredient 1</label>
+      <input
+        type="text"
+        required
+        name="quantity-1"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        required
+        name="unit-1"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        required
+        name="description-1"
+        placeholder="Description"
+      />
+      
+      <label>Ingredient 2</label>
+      <input
+        type="text"
+        name="quantity-2"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        name="unit-2"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        name="description-2"
+        placeholder="Description"
+      />
+      <label>Ingredient 3</label>
+      <input
+        type="text"
+        name="quantity-3"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        name="unit-3"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        name="description-3"
+        placeholder="Description"
+      />
+      <label>Ingredient 4</label>
+      <input
+        type="text"
+        name="quantity-4"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        name="unit-4"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        name="description-4"
+        placeholder="Description"
+      />
+      <label>Ingredient 5</label>
+      <input
+        type="text"
+        name="quantity-5"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        name="unit-5"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        name="description-5"
+        placeholder="Description"
+      />
+      <label>Ingredient 6</label>
+      <input
+        type="text"
+        name="quantity-6"
+        placeholder="Quantity"
+      />
+      <input
+        type="text"
+        name="unit-6"
+        placeholder="Unit"
+      />
+      <input
+        type="text"
+        name="description-6"
+        placeholder="Description"
+      />
+    </div>
 
-        <button class="btn upload__btn">
-          <svg>
-            <use href="src/img/icons.svg#icon-upload-cloud"></use>
-          </svg>
-          <span>Upload</span>
-        </button>
-      </form>
+    <button class="btn upload__btn">
+      <svg>
+        <use href="src/img/icons.svg#icon-upload-cloud"></use>
+      </svg>
+      <span>Upload</span>
+    </button>
+  </form>
     `;
     }
 }
@@ -1715,11 +1809,6 @@ class AllRecipes extends (0, _viewDefault.default) {
             e.preventDefault();
             handler();
         });
-    }
-    _generateMarkup() {
-        return `
-
-    `;
     }
 }
 exports.default = new AllRecipes();

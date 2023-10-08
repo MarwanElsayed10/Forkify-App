@@ -100,8 +100,9 @@ const controlAddRecipe = async function (data) {
       addRecipeView.toggleAddRecipe();
     }, MODAL_CLOSE_SEC * 1000);
   } catch (err) {
-    console.error('💥', err);
-    addRecipeView.renderErrorMessage(err.message);
+    addRecipeView.renderErrorMessage(
+      addRecipeView._errorMessage + '  ' + err.message
+    );
   }
 };
 const deleteRecipe = async function () {
@@ -125,6 +126,11 @@ const controlAllRecipes = function () {
   allRecipesView.toggleAllRecipe();
 };
 
+const controlLogo = function () {
+  window.history.replaceState(null, '', ' ');
+  location.reload();
+};
+
 const init = function () {
   BookmarkView.addHandlerRender(controlGetBookmarks);
   BookmarkView.addHandlerRender(controlEmptyBookmarks);
@@ -138,5 +144,6 @@ const init = function () {
   addRecipeView.addHandlerAddRecipe();
   addRecipeView.addHandlerUpload(controlAddRecipe);
   allRecipesView.addHandlerAllRecipe(controlAllRecipes);
+  recipeView.addHandlerLogo(controlLogo);
 };
 init();
